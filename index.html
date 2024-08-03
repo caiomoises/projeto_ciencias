@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Multifuncional</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .calculator {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+        .step-by-step {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .step-by-step p {
+            margin: 5px 0;
+        }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<div class="calculator">
+    <h1>Calculadora Multifuncional</h1>
+    <form id="calcForm">
+        <label for="operation">Escolha a operação:</label>
+        <select id="operation" required>
+            <option value="current">Intensidade da Corrente (A)</option>
+            <option value="charge">Quantidade de Carga (C)</option>
+            <option value="time">Tempo (s)</option>
+            <option value="bhaskara">Fórmula de Bhaskara</option>
+        </select>
+        <div id="inputs">
+            <input type="number" id="charge" placeholder="Insira a quantidade de carga (C)" step="0.01" required>
+            <input type="number" id="time" placeholder="Insira o tempo (s)" step="0.01" required>
+        </div>
+        <button type="submit">Calcular</button>
+    </form>
+    <div class="result" id="result"></div>
+    <div class="step-by-step" id="steps"></div>
+</div>
+
+<script>
+    const maxCurrent = 10; // Valor limite de corrente (em amperes) para verificação de segurança
+
+    document.getElementById('operation').addEventListener('change', function() {
+        const operation = document.getElementById('operation').value;
+        const inputsDiv = document.getElementById('inputs');
+        inputsDiv.innerHTML = '';
+
+        if (operation === 'current') {
+            inputsDiv.innerHTML += '<input type="number" id="charge" placeholder="Insira a quantidade de carga (C)" step="0.01" required>';
+            inputsDiv.innerHTML += '<input type="number" id="time" placeholder="Insira o tempo (s)" step="0.01" required>';
+        } else if (operation === 'charge') {
+            inputsDiv.innerHTML += '<input type="number" id="current" placeholder="Insira a intensidade da corrente (A)" step="0.01" required>';
+            inputsDiv.innerHTML += '<input type="number" id="time" placeholder="Insira o tempo (s)" step="0.01" required>';
+        } else if (operation === 'time') {
+            inputsDiv.innerHTML += '<input type="number" id="current" placeholder="Insira a intensidade da corrente (A)" step="0.01" required>';
+            inputsDiv.innerHTML += '<input type="number" id="charge" placeholder="Insira a quantidade de carga (C)" step="0.01" required>';
+        } else if (operation === 'bhaskara') {
+            inputsDiv.innerHTML += '<input type="number" id="a" placeholder="Insira o valor de a" step="0.01" required>';
+            inputsDiv.innerHTML += '<input type="number" id="b" placeholder="Insira o valor de b" step="0.01" required>';
+            inputsDiv.innerHTML += '<input type="number" id="c" placeholder="Insira o valor de c" step="0.01" required>';
+        }
+    });
+
+    document.getElementById('calcForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const operation = document.getElementById('operation').value;
+        let result;
+        const resultDiv = document.getElementById('result');
+        const stepsDiv = document.getElementById('steps');
+        resultDiv.innerHTML = '';
+        stepsDiv.innerHTML = '';
+
+        if (operation === 'current') {
+            const charge = parseFloat(document.getElementById('charge').value);
+            const time = parseFloat(document.getElementById('time').value);
+            if (time <= 0) {
+                alert("O tempo deve ser maior que zero.");
+                return;
+            }
+            result = charge / time;
+            resultDiv.innerText = `A intensidade da corrente é: ${result.toFixed(2)} A`;
+            if (result > maxCurrent) {
+                resultDiv.innerHTML += `<div class="warning">Aviso: A corrente está muito alta! Risco de sobrecarga ou curto-circuito.</div>`;
+            }
+        } else if (operation === 'charge') {
+            const current = parseFloat(document.getElementById('current').value);
+            const time = parseFloat(document.getElementById('time').value);
+            result = current * time;
+            resultDiv.innerText = `A quantidade de carga é: ${result.toFixed(2)} C`;
+        } else if (operation === 'time') {
+            const current = parseFloat(document.getElementById('current').value);
+            const charge = parseFloat(document.getElementById('charge').value);
+            if (current <= 0) {
+                alert("A corrente deve ser maior que zero.");
+                return;
+            }
+            result = charge / current;
+            resultDiv.innerText = `O tempo é: ${result.toFixed(2)} s`;
+        } else if (operation === 'bhaskara') {
+            const a = parseFloat(document.getElementById('a').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const c = parseFloat(document.getElementById('c').value);
+            const delta = b * b - 4 * a * c;
+            stepsDiv.innerHTML = `
+                <p>$$\\Delta = b^2 - 4ac$$</p>
+                <p>$$\\Delta = (${b})^2 - 4 \\cdot ${a} \\cdot ${c}$$</p>
+                <p>$$\\Delta = ${b * b} - ${4 * a * c}$$</p>
+                <p>$$\\Delta = ${delta}$$</p>
+            `;
+            if (delta < 0) {
+                resultDiv.innerText = 'Não existem raízes reais.';
+            } else {
+                const x1 = (-b + Math.sqrt(delta)) / (2 * a);
+                const x2 = (-b - Math.sqrt(delta)) / (2 * a);
+                stepsDiv.innerHTML += `
+                    <p>$$x = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}$$</p>
+                    <p>$$x_1 = \\frac{-${b} + \\sqrt{${delta}}}{2 \\cdot ${a}}$$</p>
+                    <p>$$x_1 = ${x1.toFixed(2)}$$</p>
+                    <p>$$x_2 = \\frac{-${b} - \\sqrt{${delta}}}{2 \\cdot ${a}}$$</p>
+                    <p>$$x_2 = ${x2.toFixed(2)}$$</p>
+                `;
+                resultDiv.innerText = `As raízes da equação são: x1 = ${x1.toFixed(2)}, x2 = ${x2.toFixed(2)}`;
+            }
+        }
+        MathJax.typeset(); // Renderize as fórmulas matemáticas
+    });
+</script>
+
+</body>
+</html>
